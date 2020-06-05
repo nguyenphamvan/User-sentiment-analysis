@@ -53,8 +53,8 @@ def load_data_format(filename1):
         file.close()
     return contents
 
-data = load_data_format('data/data_1.json')
-print(len(data))
-
-data_pos, data_neg = load_data('data/train/pos', 'data/train/neg')
+# data = load_data_format('data/data_1.json')
+# print(len(data))
+#
+# data_pos, data_neg = load_data('data/data_train/train/pos', 'data/data_train/train/neg')
 
