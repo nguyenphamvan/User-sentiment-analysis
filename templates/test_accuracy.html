@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Demo Text_summarization</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+<div class="container">
+    <h1>Tóm tắt đơn văn bản sử dụng mô hình đồ thị - Textrank</h1>
+    <hr/>
+        <form action="" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong><label>Chọn văn bản tóm tắt hệ thống</label></strong><br>
+                        <input type="file" name="sum_system_upload" >
+                    </div>
+                    <div class="col-md-6">
+                        <strong><label>Chọn văn bản tóm tắt tham chiếu</label></strong><br>
+                        <input type="file" name="sum_reference_upload">
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="sel1">Chọn độ đo:</label>
+                        <select class="form-control" id="sel1" name="type_score">
+                            <option value="rouge_1">ROUGE-1</option>
+                            <option value="rouge_2">ROUGE-2</option>
+                            <option value="rouge_l">ROUGE-L</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <br>
+                        <input id="1" class="btn btn-success" type="submit" value="Tóm tắt">
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    <div class="row">
+        <div class="col-md-6">{% if sum_system %}<p><u><strong>Văn bản tóm tắt: </strong></u> {{ sum_system }} </p>{% endif %}</div>
+        <div class="col-md-6">{% if sum_reference %}<p><u><strong>Văn bản tham chiếu : </strong></u> {{ sum_reference }} </p>{% endif %}</div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            {% if score1 and score2 and score3 %}
+            <p><strong>Kết quả test</strong> : {{score1}}__________{{score2}}_________{{score3}}</p>
+            {% endif %}</div>
+    </div>
+
+</div>
+</body>
+
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</html>
