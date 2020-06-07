@@ -17,7 +17,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection import GridSearchCV
 from gensim.models import Word2Vec
 from gensim.models import KeyedVectors
-import pickle
+from sklearn.externals import joblib
 
 # Từ điển tích cực, tiêu cực, phủ định
 path_nag = 'sentiment_dicts/nag.txt'
@@ -147,23 +147,27 @@ def normalize_text(text):
     texts = text.split()
     len_text = len(texts)
     for i in range(len_text):
-        cp_text = texts[i]
-        if cp_text in not_list:  # Xử lý vấn đề phủ định (VD: món ăn này ngon chẳng đẹp--> món ăn này notpositive)
-            numb_word = 2 if len_text - i - 1 >= 4 else len_text - i - 1
-            for j in range(numb_word):
-                if texts[i + j + 1] in pos_list:
+        # Xử lý vấn đề phủ định
+        # "Món này chẳng ngon chút nào , k quá tệ --> món này notpositive chút nào notnegative
+        if texts[i] in not_list:
+            for j in range(i,len_text-1):
+                if texts[j + 1] in pos_list:
                     texts[i] = 'notpositive'
-                    texts[i + j + 1] = ''
+                    texts[j + 1] = ''
+                    break
 
-                if texts[i + j + 1] in nag_list:
+                if texts[j + 1] in nag_list:
                     texts[i] = 'notnagative'
-                    texts[i + j + 1] = ''
+                    texts[j + 1] = ''
+                    break
+
         else:  # Thêm feature cho những từ positive (món này ngon--> món này ngon positive)
-            if cp_text in pos_list:
+            if texts[i] in pos_list:
                 texts.append('positive')
-            elif cp_text in nag_list:
+            elif texts[i] in nag_list:
                 texts.append('nagative')
-    text = ' '.join(texts)
+
+    text = ' '.join([text for text in texts if text != ''])
 
     return text
 
@@ -204,7 +208,7 @@ def prepare_data():
 
     return X_train, y_train, X_test, y_test
 
-def model(X_train, y_train, stopwords):
+def train_model(X_train, y_train, stopwords):
     tfidfVectorizer = TfidfVectorizer(analyzer='word', stop_words=stopwords, max_features=30000, max_df=0.5, min_df=5,
                                       ngram_range=(1, 3), norm='l2', smooth_idf=True)
 
@@ -216,68 +220,33 @@ def model(X_train, y_train, stopwords):
 
     clf = Pipeline(steps)
     clf.fit(X_train, y_train)
-    with open ('model','w') as out_file:
-        pickle.dump(clf, out_file)
+    clf = joblib.dump('model.pkl')
     return clf
 
-def word2vec_embedding(stopwords, pretrain_model_path=None):
-    data = pd.DataFrame(load_data_format('data/data.json'))
-    X_data = data.comment
-    y_data = data.label
-    X_data, y_data = transform_to_dataset(X_data,y_data)
-    X_data_new = []
-    for sent in X_data:
-        s = []
-        for x in sent.split(' '):
-            if x not in stopwords:
-                s.append(x)
-        X_data_new.append(s)
-
-    # if pretrain_model_path is None:
-    #     model = Word2Vec(X_data_new, min_count=1, size=300,workers=4)
-    #     model.save("model_word2vec.bin")
-
-    # pretrain_model_path = 'model_word2vec.bin'
-
-    w2v = KeyedVectors.load_word2vec_format('model_word2vec.bin', binary=True)
-    vocab = w2v.wv.vocab
-    wv = w2v.wv
-
-    word2vec_data = []
-    for x in X_data_new:
-        sentence = 0
-        for word in x:
-            if word in vocab:
-                sentence += wv[word]
-        word2vec_data.append(sentence)
-
-    return word2vec_data, y_data
-
-stopwords = create_stopwords()
-word2vec_data, y_data = word2vec_embedding(stopwords)
 
 
-def test(X_test, y_test, model):
+def test(file_path, model):
+    test_data = pd.DataFrame(load_data_format(file_path))
+    X_test, y_test = transform_to_dataset(test_data.comment, test_data.label)
     y_pred = model.predict(X_test)
-    report1 = metrics.classification_report(y_test, y_pred, labels=[1, 0], digits=3)
+    report1 = metrics.classification_report(y_test, y_pred, labels=[1, 0])
     classifier = model['classifier']
     print('Name of classifier : ', type(classifier).__name__)
     print(report1)
 
 
-X_train, y_train, X_test, y_test = prepare_data()
-stopwords = create_stopwords()
+# X_train, y_train, X_test, y_test = prepare_data()
+# stopwords = create_stopwords()
 
-with open ('model','r') as path_file_model:
-    clf = pickle.load(path_file_model)
-test(X_test, y_test, clf)
-
+clf = joblib.load('model.pkl')
+test('data/test_data.json', clf)
+#
 # while True:
 #   print('Hãy nhập vào 1 comment : ')
 #   X_test = input()
 #   X_test = normalize_text(X_test.strip())
 #   print([X_test])
-
+#
 #   y_predict = clf.predict([X_test])
 #   print('Comment được phân loại là : ')
 #   if int(y_predict[0]) == 0:
@@ -287,14 +256,14 @@ test(X_test, y_test, clf)
 #   print()
 
 
-def load_model():
-    import joblib
-    model = joblib.load('model.pkl')
-    return model
-
-def classify_one_comment(model,comment):
-    comment = normalize_text(comment)
-    print(comment)
-    predict = model.predict([comment])
-    return predict
+# def load_model():
+#     import joblib
+#     model = joblib.load('model.pkl')
+#     return model
+#
+# def classify_one_comment(model,comment):
+#     comment = normalize_text(comment)
+#     print(comment)
+#     predict = model.predict([comment])
+#     return predict
 

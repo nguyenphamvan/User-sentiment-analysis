@@ -1,5 +1,6 @@
 import os
 import json
+import random
 
 def filter_data(filename1):
     with open(filename1, 'r') as file:
@@ -53,8 +54,63 @@ def load_data_format(filename1):
         file.close()
     return contents
 
-# data = load_data_format('data/data_1.json')
-# print(len(data))
+def combine_data_crawl(folder_path):
+    list_file = os.listdir(folder_path)
+    negative = []
+    positive = []
+    for file in list_file:
+        data = filter_data('data/comment_data.json')
+        negative += [neg for neg in data if neg['label'] == 1]
+        positive += [pos for pos in data if pos['label'] == 0]
+
+    positive = positive[:len(negative)]
+    all_data = positive + negative
+
+    with open('data/test_data.json', 'w') as out_file:
+        json.dump(all_data, out_file, ensure_ascii=False)
+
+    print('finished dump file !!!')
+
+
+# data1 = filter_data('data/comment_data.json')
+# nag_cmt1 = [nag for nag in data1 if nag['label']==1]
+# data2 = filter_data('data/comment_data_large.json')
+# nag_cmt2 = [nag for nag in data2 if nag['label']==1]
+# data3 = filter_data('data/foody_can_tho.json')
+# nag_cmt3 = [nag for nag in data3 if nag['label']==1]
+# data4 = filter_data('data/foody_da_nang.json')
+# nag_cmt4 = [nag for nag in data4 if nag['label']==1]
+# data5 = filter_data('data/hai-phong.json')
+# nag_cmt5 = [nag for nag in data5 if nag['label']==1]
 #
-# data_pos, data_neg = load_data('data/data_train/train/pos', 'data/data_train/train/neg')
+# data6 = filter_data('data/foodycomment.json')
+# nag_cmt6 = [nag for nag in data6 if nag['label']==1]
+# data7 = filter_data('data/foodycomment_1.json')
+# nag_cmt7 = [nag for nag in data7 if nag['label']==1]
+# data8 = filter_data('data/foodycomment_hcm.json')
+# nag_cmt8 = [nag for nag in data8 if nag['label']==1]
+# data9 = filter_data('data/hcm_new.json')
+# nag_cmt9 = [nag for nag in data9 if nag['label']==1]
+#
+# pos_cmt8 = [nag for nag in data8 if nag['label']==0]
+# pos_cmt7 = [nag for nag in data7 if nag['label']==0]
+# pos_cmt6 = [nag for nag in data6 if nag['label']==0]
+# pos_cmt5 = [nag for nag in data5 if nag['label']==0]
+#
+# print(len(pos_cmt8 + pos_cmt7 + pos_cmt6 + pos_cmt5))
+#
+# pos_cmt = pos_cmt8 + pos_cmt7 + pos_cmt6 + pos_cmt5
+# nag_cmt = nag_cmt1 + nag_cmt2 + nag_cmt3 + nag_cmt4 + nag_cmt5 + nag_cmt6 + nag_cmt7 + nag_cmt8 + nag_cmt9
+# print(len(nag_cmt))
+#
+# new_data = pos_cmt[:8000] + nag_cmt[:8000]
+# print(type(new_data))
+# print(new_data[1])
+# random.shuffle(new_data)
+# print(new_data[1])
+#
+# with open('test_data.json','w') as out_file:
+#     json.dump(new_data, out_file, ensure_ascii=False)
+#
+# data_pos, data_neg = load_data('data/train/pos', 'data/train/neg')
 
